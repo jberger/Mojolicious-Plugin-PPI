@@ -2,6 +2,7 @@ package Mojolicious::Plugin::PPI;
 use Mojo::Base 'Mojolicious::Plugin';
 
 use Time::HiRes 'gettimeofday';
+use File::Spec::Functions 'catfile';
 
 use PPI::HTML;
 
@@ -14,14 +15,21 @@ sub register {
 
   my $default_toggle_button = $args->{toggle_button} || 0;
 
+  my $src_folder = $args->{src_folder} || '';
+  if ( $src_folder ) {
+    warn "Could not find folder $src_folder\n" unless (-d $src_folder);
+  }
+
   $app->helper( 
     ppi => sub {
       my $c = shift;
       my $input = shift;
       my %opts = ref $_[0] ? %{ $_[0] } : @_;
 
+      my $filename = $src_folder ? catfile( $src_folder, $input ) : $input;
+
       my $return;
-      if ( -e $input ) {
+      if ( -e $filename ) {
         ## if the input is the filename of an existing file
 
         $opts{toggle_button} //= $default_toggle_button;               #/# highlight fix
@@ -35,7 +43,7 @@ sub register {
 
         $ppi->{line_numbers} = $opts{line_numbers} // 1;               #/# highlight fix
         $return .= '<div class="code"' . (exists $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
-        $return .= $ppi->html( $input );
+        $return .= $ppi->html( $filename );
         if ($opts{toggle_button}) {
           $return .= qq[\n<br><input type="submit" value="Toggle Line Numbers" onClick="toggleLineNumbers('$opts{id}')" />];
         }
@@ -131,7 +139,19 @@ L<Mojolicious::Plugin> and implements the following new ones.
 
   $plugin->register;
 
-Register plugin in L<Mojolicious> application.
+Register plugin in L<Mojolicious> application. A register time, several options may be supplied:
+
+=over
+
+=item *
+
+C<< toggle_button => [0/1] >> specifies whether a "Toggle Line Numbers" button (see below) will be created by default. Default is false.
+
+=item *
+
+C<< src_folder => 'directory' >> specifies a folder where input files will be found. When specified, if the directory is not found, a warning is issued, but not fatally. This functionality is not (currently) available for per-file alteration, so only use if all files will be in this folder (or subfolder). Remeber, if this option is not specified, a full or relative path may be passed to C<ppi>. 
+
+=back
 
 =head1 HELPERS
 
@@ -142,7 +162,7 @@ L<Mojolicous::Plugin::PPI> provides these helpers:
   %== ppi 'my $code = "highlighted";'
   %== ppi 'file.pl'
 
-Returns HTML form of Perl snippet or file. If the argument is the name of a file that exists, it will be loaded and used. If not the string will be interpreted as an inline snippet. Either may take options:
+Returns HTML form of Perl snippet or file. The behavior may be slightly different in each case. If the argument is the name of a file that exists, it will be loaded and used. If not the string will be interpreted as an inline snippet. In either form, the call to C<ppi> may take the additional option:
 
 =over
 
@@ -152,7 +172,7 @@ C<< line_numbers => [0/1] >> specifies if line numbers should be generated
 
 =back
 
-Files are placed in a C<< <div> >> tag, and take several additional options
+In the case of a file, the contents are placed in a C<< <div> >> tag, and there are several additional options
 
 =over
 
