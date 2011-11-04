@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::PPI;
 use Mojo::Base 'Mojolicious::Plugin';
 
-use Mojo::Util 'md5_sum';
+use Time::HiRes 'gettimeofday';
 
 use PPI::HTML;
 
@@ -28,7 +28,7 @@ sub register {
 
         if ( $opts{toggle_button} ) {
           ## a hide button will require a div id, so make one if not specified
-          $opts{id} //= md5_sum time;                                  #/# highlight fix
+          $opts{id} //= 'ppi' . join('', gettimeofday());              #/# highlight fix
           ## override if toggle_button is to be used
           $opts{line_numbers} = 1;
         }
