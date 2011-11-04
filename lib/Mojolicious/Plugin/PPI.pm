@@ -6,7 +6,7 @@ use File::Spec::Functions 'catfile';
 
 use PPI::HTML;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my $ppi = PPI::HTML->new( line_numbers => 1 );
 
