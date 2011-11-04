@@ -42,7 +42,7 @@ sub register {
         }
 
         $ppi->{line_numbers} = $opts{line_numbers} // 1;               #/# highlight fix
-        $return .= '<div class="code"' . (exists $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
+        $return .= '<div class="code"' . (defined $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
         $return .= $ppi->html( $filename );
         if ($opts{toggle_button}) {
           $return .= qq[\n<br><input type="submit" value="Toggle Line Numbers" onClick="toggleLineNumbers('$opts{id}')" />];
