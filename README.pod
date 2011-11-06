@@ -23,7 +23,19 @@ L<Mojolicious::Plugin> and implements the following new ones.
 
   $plugin->register;
 
-Register plugin in L<Mojolicious> application.
+Register plugin in L<Mojolicious> application. A register time, several options may be supplied:
+
+=over
+
+=item *
+
+C<< toggle_button => [0/1] >> specifies whether a "Toggle Line Numbers" button (see below) will be created by default. Default is false.
+
+=item *
+
+C<< src_folder => 'directory' >> specifies a folder where input files will be found. When specified, if the directory is not found, a warning is issued, but not fatally. This functionality is not (currently) available for per-file alteration, so only use if all files will be in this folder (or subfolder). Remeber, if this option is not specified, a full or relative path may be passed to C<ppi>. 
+
+=back
 
 =head1 HELPERS
 
@@ -34,7 +46,7 @@ L<Mojolicous::Plugin::PPI> provides these helpers:
   %== ppi 'my $code = "highlighted";'
   %== ppi 'file.pl'
 
-Returns HTML form of Perl snippet or file. If the argument is the name of a file that exists, it will be loaded and used. If not the string will be interpreted as an inline snippet. Either may take options:
+Returns HTML form of Perl snippet or file. The behavior may be slightly different in each case. If the argument is the name of a file that exists, it will be loaded and used. If not the string will be interpreted as an inline snippet. In either form, the call to C<ppi> may take the additional option:
 
 =over
 
@@ -44,7 +56,7 @@ C<< line_numbers => [0/1] >> specifies if line numbers should be generated
 
 =back
 
-Files are placed in a C<< <div> >> tag, and take several additional options
+In the case of a file, the contents are placed in a C<< <div> >> tag, and there are several additional options
 
 =over
 
