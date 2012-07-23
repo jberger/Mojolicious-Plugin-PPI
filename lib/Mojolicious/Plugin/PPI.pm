@@ -1,7 +1,6 @@
 package Mojolicious::Plugin::PPI;
 use Mojo::Base 'Mojolicious::Plugin';
 
-use Time::HiRes 'gettimeofday';
 use File::Basename 'dirname';
 use File::Spec::Functions qw/catdir catfile/;
 
@@ -12,6 +11,7 @@ our $VERSION = '0.02';
 has 'ppi' => sub { PPI::HTML->new( line_numbers => 1 ) };
 has 'toggle_button' => 0;
 has 'src_folder' => '';
+has 'id' => 1;
 
 sub register {
   my ($plugin, $app, $args) = @_;
@@ -35,7 +35,7 @@ sub register {
 
         if ( $opts{toggle_button} ) {
           ## a hide button will require a div id, so make one if not specified
-          $opts{id} //= 'ppi' . join('', gettimeofday());              #/# highlight fix
+          $opts{id} //= $plugin->_generate_id;              #/# highlight fix
           ## override if toggle_button is to be used
           $opts{line_numbers} = 1;
         }
@@ -71,6 +71,19 @@ sub _process_init_opts {
     warn "Could not find folder $src_folder\n" unless (-d $src_folder);
     $plugin->src_folder( $src_folder );     
   }
+
+  if ( keys %$args ) {
+    warn "Unknown option(s): " . join(", ", keys %$args) . "\n";
+  }
+}
+
+sub _generate_id {
+  my $plugin = shift;
+  my $id = $plugin->id;
+
+  #create the next id, roll over at 10000
+  $plugin->id( ($id + 1) % 10000 );
+  return "ppi$id";
 }
 
 1;

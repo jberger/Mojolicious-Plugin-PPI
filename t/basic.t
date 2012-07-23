@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use Mojo::Base -strict;
 
-use Test::More tests => 14;
+use Test::More tests => 21;
 
 use Mojolicious::Lite;
 use Test::Mojo;
@@ -28,7 +28,15 @@ $t->get_ok('/toggle')
   ->status_is(200)
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number')
-  ->element_exists('input');
+  ->element_exists('input')
+  ->element_exists(".code[id=ppi1]");
+
+$t->get_ok('/toggle')
+  ->status_is(200)
+  ->text_is('span.symbol' => '@world')
+  ->element_exists('span.line_number')
+  ->element_exists('input')
+  ->element_exists(".code[id=ppi2]");
 
 __DATA__
 
