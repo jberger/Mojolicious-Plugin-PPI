@@ -22,8 +22,8 @@ sub register {
   $app->helper( 
     ppi => sub {
       my $c = shift;
-      my $input = shift;
-      my %opts = ref $_[0] ? %{ $_[0] } : @_;
+      my %opts = $plugin->_process_helper_opts(@_);
+      my $input = $opts{string};
 
       my $filename = $plugin->src_folder ? catfile( $plugin->src_folder, $input ) : $input;
 
@@ -41,12 +41,13 @@ sub register {
         }
 
         $plugin->ppi->{line_numbers} = $opts{line_numbers} // 1;               #/# highlight fix
-        $return .= '<div class="code"' . (defined $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
+        my $outer_type = 'div';
+        $return .= qq[<$outer_type class="code"] . (defined $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
         $return .= $plugin->ppi->html( $filename );
         if ($opts{toggle_button}) {
           $return .= qq[\n<br><input type="submit" value="Toggle Line Numbers" onClick="toggleLineNumbers('$opts{id}')" />];
         }
-        $return .= '</div>';
+        $return .= "</$outer_type>";
 
       } else {
         ## if not, then treat as an inline snippet
@@ -75,6 +76,37 @@ sub _process_init_opts {
   if ( keys %$args ) {
     warn "Unknown option(s): " . join(", ", keys %$args) . "\n";
   }
+}
+
+sub _process_helper_opts {
+  my $plugin = shift;
+
+  my $string;
+  no warnings 'uninitialized';
+  if (ref $_[-1] eq 'CODE') {
+    $string = pop->();
+  }
+
+  my %opts;
+  if (ref $_[-1]) {
+    %opts = %{ pop() };
+  }
+
+  if ( @_ % 2 ) { 
+    if ( $string ) {
+      warn "Both a string and a block were provided, using the block\n";
+    } else {
+      $string = shift;
+    }
+  }
+
+  if ( @_ ) {
+    %opts = (%opts, @_);
+  }
+
+  $opts{string} = $string;
+
+  return %opts;
 }
 
 sub _generate_id {
