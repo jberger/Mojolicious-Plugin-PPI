@@ -10,17 +10,21 @@ use PPI::HTML;
 our $VERSION = '0.02';
 
 has 'ppi' => sub { PPI::HTML->new( line_numbers => 1 ) };
+has 'toggle_button' => 0;
+has 'src_folder' => '';
 
 sub register {
   my ($plugin, $app, $args) = @_;
 
   push @{$app->static->paths}, catdir(dirname(__FILE__), 'PPI', 'public');
 
-  my $default_toggle_button = $args->{toggle_button} || 0;
+  if (exists $args->{toggle_button}) {
+    $plugin->toggle_button( delete $args->{toggle_button} );
+  }
 
-  my $src_folder = $args->{src_folder} || '';
-  if ( $src_folder ) {
+  if ( my $src_folder = delete $args->{src_folder} ) {
     warn "Could not find folder $src_folder\n" unless (-d $src_folder);
+    $plugin->src_folder( $src_folder );     
   }
 
   $app->helper( 
@@ -29,13 +33,13 @@ sub register {
       my $input = shift;
       my %opts = ref $_[0] ? %{ $_[0] } : @_;
 
-      my $filename = $src_folder ? catfile( $src_folder, $input ) : $input;
+      my $filename = $plugin->src_folder ? catfile( $plugin->src_folder, $input ) : $input;
 
       my $return;
       if ( -e $filename ) {
         ## if the input is the filename of an existing file
 
-        $opts{toggle_button} //= $default_toggle_button;               #/# highlight fix
+        $opts{toggle_button} //= $plugin->toggle_button;               #/# highlight fix
 
         if ( $opts{toggle_button} ) {
           ## a hide button will require a div id, so make one if not specified
