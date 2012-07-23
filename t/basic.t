@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use Mojo::Base -strict;
 
-use Test::More tests => 21;
+use Test::More tests => 25;
 
 use Mojolicious::Lite;
 use Test::Mojo;
@@ -15,17 +15,20 @@ get '/toggle' => 'toggle';
 my $t = Test::Mojo->new;
 $t->get_ok('/inline')
   ->status_is(200)
+  ->element_exists( 'span.code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists_not('span.line_number');
 
 $t->get_ok('/file')
   ->status_is(200)
+  ->element_exists( 'div.code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number')
   ->element_exists_not('input');
 
 $t->get_ok('/toggle')
   ->status_is(200)
+  ->element_exists( 'div.code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number')
   ->element_exists('input')
@@ -33,6 +36,7 @@ $t->get_ok('/toggle')
 
 $t->get_ok('/toggle')
   ->status_is(200)
+  ->element_exists( 'div.code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number')
   ->element_exists('input')

@@ -23,38 +23,37 @@ sub register {
     ppi => sub {
       my $c = shift;
       my %opts = $plugin->_process_helper_opts(@_);
-      my $input = $opts{string};
 
-      my $filename = $plugin->src_folder ? catfile( $plugin->src_folder, $input ) : $input;
+      $opts{inline} ||= 0;
+      my $outer_type = $opts{inline} ? 'span' : 'div';
 
-      my $return;
-      if ( -e $filename ) {
-        ## if the input is the filename of an existing file
-
-        $opts{toggle_button} //= $plugin->toggle_button;               #/# highlight fix
-
-        if ( $opts{toggle_button} ) {
-          ## a hide button will require a div id, so make one if not specified
-          $opts{id} //= $plugin->_generate_id;              #/# highlight fix
-          ## override if toggle_button is to be used
-          $opts{line_numbers} = 1;
-        }
-
-        $plugin->ppi->{line_numbers} = $opts{line_numbers} // 1;               #/# highlight fix
-        my $outer_type = 'div';
-        $return .= qq[<$outer_type class="code"] . (defined $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
-        $return .= $plugin->ppi->html( $filename );
-        if ($opts{toggle_button}) {
-          $return .= qq[\n<br><input type="submit" value="Toggle Line Numbers" onClick="toggleLineNumbers('$opts{id}')" />];
-        }
-        $return .= "</$outer_type>";
-
-      } else {
-        ## if not, then treat as an inline snippet
-        ## do not use line numbers on inline snippets
-        $plugin->ppi->{line_numbers} = $opts{line_numbers} // 0;               #/# highlight fix
-        $return = $plugin->ppi->html( \$input );
+      $opts{toggle_button} //= $plugin->toggle_button;               #/# highlight fix
+      if ( $opts{inline} ) {
+        $opts{toggle_button} = 0;
       }
+
+      if ( $opts{toggle_button} ) {
+        ## a hide button will require a div id, so make one if not specified
+        $opts{id} //= $plugin->_generate_id;              #/# highlight fix
+        ## override if toggle_button is to be used
+        $opts{line_numbers} = 1;
+      }
+
+      $plugin->ppi->{line_numbers} = $opts{line_numbers} //= ! $opts{inline};     #/# highlight fix
+
+      my $return = qq[<$outer_type class="code"] . (defined $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
+
+      if ( $opts{file} ) {
+        $return .= $plugin->ppi->html( $opts{file} );
+      } else {             
+        $return .= $plugin->ppi->html( \$opts{string} );
+      }
+
+      if ($opts{toggle_button}) {
+        $return .= 
+          qq[\n<br><input type="submit" value="Toggle Line Numbers" onClick="toggleLineNumbers('$opts{id}')" />];
+      }
+      $return .= "</$outer_type>";
 
       return $return;
     }
@@ -82,9 +81,11 @@ sub _process_helper_opts {
   my $plugin = shift;
 
   my $string;
-  no warnings 'uninitialized';
-  if (ref $_[-1] eq 'CODE') {
-    $string = pop->();
+  {
+    no warnings 'uninitialized';
+    if (ref $_[-1] eq 'CODE') {
+      $string = pop->();
+    }
   }
 
   my %opts;
@@ -97,6 +98,12 @@ sub _process_helper_opts {
       warn "Both a string and a block were provided, using the block\n";
     } else {
       $string = shift;
+      my $filename = $plugin->src_folder ? catfile( $plugin->src_folder, $string ) : $string;
+      if ( -e $filename ) {
+        $opts{file} = $filename;
+      } else {
+        $opts{inline} //= 1;                #/# fix highlight
+      }
     }
   }
 
@@ -104,7 +111,7 @@ sub _process_helper_opts {
     %opts = (%opts, @_);
   }
 
-  $opts{string} = $string;
+  $opts{string} = $string unless defined $opts{file};
 
   return %opts;
 }
