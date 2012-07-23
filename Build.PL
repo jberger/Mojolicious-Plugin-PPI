@@ -14,7 +14,6 @@ my $build = Module::Build->new(
   requires => {
     'Mojolicious' => '2.0',
     'PPI::HTML'   => 0,
-    'Time::HiRes' => 0,
   },
 );
 
