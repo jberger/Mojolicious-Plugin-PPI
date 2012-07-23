@@ -40,12 +40,8 @@ Hello <%== ppi 't/test.pl', toggle_button => 1 %>
   <!doctype html><html>
     <head>
       <title><%= title %></title>
-      %= javascript begin 
-        %== ppi_js
-      %= end
-      %= stylesheet begin
-        %== ppi_css
-      %= end
+      %= javascript 'ppi.js'
+      %= stylesheet 'ppi.css'
     </head>
     <body><%= content %></body>
   </html>

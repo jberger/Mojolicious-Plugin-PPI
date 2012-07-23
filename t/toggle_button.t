@@ -33,12 +33,8 @@ Hello <%== ppi 't/test.pl' %>
   <!doctype html><html>
     <head>
       <title><%= title %></title>
-      %= javascript begin 
-        %== ppi_js
-      %= end
-      %= stylesheet begin
-        %== ppi_css
-      %= end
+      %= javascript 'ppi.js'
+      %= stylesheet 'ppi.css'
     </head>
     <body><%= content %></body>
   </html>

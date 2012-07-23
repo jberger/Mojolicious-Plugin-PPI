@@ -2,7 +2,8 @@ package Mojolicious::Plugin::PPI;
 use Mojo::Base 'Mojolicious::Plugin';
 
 use Time::HiRes 'gettimeofday';
-use File::Spec::Functions 'catfile';
+use File::Basename 'dirname';
+use File::Spec::Functions qw/catdir catfile/;
 
 use PPI::HTML;
 
@@ -12,6 +13,8 @@ my $ppi = PPI::HTML->new( line_numbers => 1 );
 
 sub register {
   my ($self, $app, $args) = @_;
+
+  push @{$app->static->paths}, catdir(dirname(__FILE__), 'PPI', 'public');
 
   my $default_toggle_button = $args->{toggle_button} || 0;
 
@@ -59,56 +62,6 @@ sub register {
       return $return;
     }
   );
-
-  $app->helper( ppi_js => sub { return <<'JS'; } );
-function toggleLineNumbers(id) {
-  var spans = document.getElementById(id).getElementsByTagName("span");
-  var span;
-  for (i = 0; i < spans.length; i++){
-    span = spans[i];
-    if(span.className=='line_number'){
-      if (span.style.display!="none") {
-        span.style.display = "none";
-      } else {
-        span.style.display = "inline";
-      }
-    }
-  }
-}
-JS
-
-  $app->helper( ppi_css => sub { return <<'CSS' } );
-.code { 
-  display: inline-block;
-  min-width: 400px;
-  background-color: #F8F8F8;
-  border-radius: 10px;
-  padding: 15px;
-}
-
-.cast { color: #339999 ;}
-.comment { color: #008080 ;}
-.core { color: #FF0000 ;}
-.double { color: #999999 ;}
-.heredoc_content { color: #FF0000 ;}
-.interpolate { color: #999999 ;}
-.keyword { color: #BD2E2A ;}
-.line_number { color: #666666 ;}
-.literal { color: #999999 ;}
-.magic { color: #0099FF ;}
-.match { color: #9900FF ;}
-.number { color: #990000 ;}
-.operator { color: #DD7700 ;}
-.pod { color: #008080 ;}
-.pragma { color: #A33AF7 ;}
-.regex { color: #9900FF ;}
-.single { color: #999999 ;}
-.substitute { color: #9900FF ;}
-.symbol { color: #389A7D ;}
-.transliterate { color: #9900FF ;}
-.word { color: #999999 ;}
-CSS
-
 }
 
 1;
