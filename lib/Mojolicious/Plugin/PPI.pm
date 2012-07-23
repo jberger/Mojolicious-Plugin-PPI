@@ -15,17 +15,9 @@ has 'src_folder' => '';
 
 sub register {
   my ($plugin, $app, $args) = @_;
+  $plugin->_process_init_opts($app, $args);
 
   push @{$app->static->paths}, catdir(dirname(__FILE__), 'PPI', 'public');
-
-  if (exists $args->{toggle_button}) {
-    $plugin->toggle_button( delete $args->{toggle_button} );
-  }
-
-  if ( my $src_folder = delete $args->{src_folder} ) {
-    warn "Could not find folder $src_folder\n" unless (-d $src_folder);
-    $plugin->src_folder( $src_folder );     
-  }
 
   $app->helper( 
     ppi => sub {
@@ -66,6 +58,19 @@ sub register {
       return $return;
     }
   );
+}
+
+sub _process_init_opts {
+  my ($plugin, $app, $args) = @_;
+
+  if (exists $args->{toggle_button}) {
+    $plugin->toggle_button( delete $args->{toggle_button} );
+  }
+
+  if ( my $src_folder = delete $args->{src_folder} ) {
+    warn "Could not find folder $src_folder\n" unless (-d $src_folder);
+    $plugin->src_folder( $src_folder );     
+  }
 }
 
 1;
