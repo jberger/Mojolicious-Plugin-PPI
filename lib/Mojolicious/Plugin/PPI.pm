@@ -9,10 +9,10 @@ use PPI::HTML;
 
 our $VERSION = '0.02';
 
-my $ppi = PPI::HTML->new( line_numbers => 1 );
+has 'ppi' => sub { PPI::HTML->new( line_numbers => 1 ) };
 
 sub register {
-  my ($self, $app, $args) = @_;
+  my ($plugin, $app, $args) = @_;
 
   push @{$app->static->paths}, catdir(dirname(__FILE__), 'PPI', 'public');
 
@@ -44,9 +44,9 @@ sub register {
           $opts{line_numbers} = 1;
         }
 
-        $ppi->{line_numbers} = $opts{line_numbers} // 1;               #/# highlight fix
+        $plugin->ppi->{line_numbers} = $opts{line_numbers} // 1;               #/# highlight fix
         $return .= '<div class="code"' . (defined $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
-        $return .= $ppi->html( $filename );
+        $return .= $plugin->ppi->html( $filename );
         if ($opts{toggle_button}) {
           $return .= qq[\n<br><input type="submit" value="Toggle Line Numbers" onClick="toggleLineNumbers('$opts{id}')" />];
         }
@@ -55,8 +55,8 @@ sub register {
       } else {
         ## if not, then treat as an inline snippet
         ## do not use line numbers on inline snippets
-        $ppi->{line_numbers} = $opts{line_numbers} // 0;               #/# highlight fix
-        $return = $ppi->html( \$input );
+        $plugin->ppi->{line_numbers} = $opts{line_numbers} // 0;               #/# highlight fix
+        $return = $plugin->ppi->html( \$input );
       }
 
       return $return;
