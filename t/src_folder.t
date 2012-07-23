@@ -13,9 +13,9 @@ get '/file'   => 'file';
 my $t = Test::Mojo->new;
 $t->get_ok('/file')
   ->status_is(200)
-  ->content_like(qr'@world')
-  ->content_like(qr'span class="line_number"')
-  ->content_unlike(qr'onClick');
+  ->text_is('span.symbol' => '@world')
+  ->element_exists('span.line_number')
+  ->element_exists_not('input');
 
 done_testing;
 
