@@ -1,5 +1,7 @@
 package Mojolicious::Plugin::PPI;
 use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::ByteStream;
+use Mojo::Util qw/trim/;
 
 use File::Basename 'dirname';
 use File::Spec::Functions qw/catdir catfile/;
@@ -55,7 +57,7 @@ sub register {
       }
       $return .= "</$outer_type>";
 
-      return $return;
+      return Mojo::ByteStream->new($return);
     }
   );
 }
@@ -84,7 +86,7 @@ sub _process_helper_opts {
   {
     no warnings 'uninitialized';
     if (ref $_[-1] eq 'CODE') {
-      $string = pop->();
+      $string = trim pop->();
     }
   }
 

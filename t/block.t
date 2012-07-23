@@ -6,25 +6,26 @@ use Test::More tests => 5;
 use Mojolicious::Lite;
 use Test::Mojo;
 
-plugin 'PPI', 'src_folder' => 't';
+plugin 'PPI';
 
-get '/file'   => 'file';
+get '/block' => 'block';
 
 my $t = Test::Mojo->new;
-$t->get_ok('/file')
+$t->get_ok('/block')
   ->status_is(200)
+  ->element_exists( 'div.code' )
   ->text_is('span.symbol' => '@world')
-  ->element_exists('span.line_number')
-  ->element_exists_not('input');
-
-done_testing;
+  ->element_exists('span.line_number');
 
 __DATA__
 
-@@ file.html.ep
+@@ block.html.ep
 % title 'Inline';
 % layout 'basic';
-Hello <%= ppi 'test.pl' %>
+Hello
+%= ppi begin
+  @world
+%= end
 
 @@ layouts/basic.html.ep
   <!doctype html><html>

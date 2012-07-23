@@ -29,12 +29,12 @@ __DATA__
 @@ file.html.ep
 % title 'Inline';
 % layout 'basic';
-Hello <%== ppi 't/test.pl', toggle_button => 0 %>
+Hello <%= ppi 't/test.pl', toggle_button => 0 %>
 
 @@ toggle.html.ep
 % title 'Inline';
 % layout 'basic';
-Hello <%== ppi 't/test.pl' %>
+Hello <%= ppi 't/test.pl' %>
 
 @@ layouts/basic.html.ep
   <!doctype html><html>

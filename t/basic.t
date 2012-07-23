@@ -47,17 +47,17 @@ __DATA__
 @@ inline.html.ep
 % title 'Inline';
 % layout 'basic';
-Hello <%== ppi '@world' %>
+Hello <%= ppi '@world' %>
 
 @@ file.html.ep
 % title 'Inline';
 % layout 'basic';
-Hello <%== ppi 't/test.pl' %>
+Hello <%= ppi 't/test.pl' %>
 
 @@ toggle.html.ep
 % title 'Inline';
 % layout 'basic';
-Hello <%== ppi 't/test.pl', toggle_button => 1 %>
+Hello <%= ppi 't/test.pl', toggle_button => 1 %>
 
 @@ layouts/basic.html.ep
   <!doctype html><html>
