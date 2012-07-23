@@ -11,11 +11,13 @@ plugin 'PPI', 'src_folder' => 't';
 get '/file'   => 'file';
 
 my $t = Test::Mojo->new;
-$t->get_ok('/file')->status_is(200)->content_like(qr'@world')->content_like(qr'span class="line_number"')->content_unlike(qr'onClick');
+$t->get_ok('/file')
+  ->status_is(200)
+  ->content_like(qr'@world')
+  ->content_like(qr'span class="line_number"')
+  ->content_unlike(qr'onClick');
 
 done_testing;
-
-#print STDERR $t->tx->res->to_string;
 
 __DATA__
 

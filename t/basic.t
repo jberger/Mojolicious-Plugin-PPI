@@ -13,11 +13,22 @@ get '/file'   => 'file';
 get '/toggle' => 'toggle';
 
 my $t = Test::Mojo->new;
-$t->get_ok('/inline')->status_is(200)->content_like(qr'@world')->content_unlike(qr'span class="line_number"');
-$t->get_ok('/file')->status_is(200)->content_like(qr'@world')->content_like(qr'span class="line_number"')->content_unlike(qr'onClick');
-$t->get_ok('/toggle')->status_is(200)->content_like(qr'@world')->content_like(qr'span class="line_number"')->content_like(qr'onClick');
+$t->get_ok('/inline')
+  ->status_is(200)
+  ->content_like(qr'@world')
+  ->content_unlike(qr'span class="line_number"');
 
-#print STDERR $t->tx->res->to_string;
+$t->get_ok('/file')
+  ->status_is(200)
+  ->content_like(qr'@world')
+  ->content_like(qr'span class="line_number"')
+  ->content_unlike(qr'onClick');
+
+$t->get_ok('/toggle')
+  ->status_is(200)
+  ->content_like(qr'@world')
+  ->content_like(qr'span class="line_number"')
+  ->content_like(qr'onClick');
 
 __DATA__
 
