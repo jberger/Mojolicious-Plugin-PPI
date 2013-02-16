@@ -6,7 +6,7 @@ use Mojo::Template;
 use Mojo::ByteStream 'b';
 use Mojo::Util qw/trim/;
 
-use File::Basename 'dirname';
+use File::Basename ();
 use File::Spec;
 
 use PPI::HTML;
@@ -20,23 +20,27 @@ has 'toggle_button' => 0;
 has 'src_folder';
 has 'id' => 1;
 has 'template' => <<'TEMPLATE';
-  % my @tag = $opts->{inline} ? 'span' : 'div';
-  % push @tag, class => 'ppi-code';
-  % push @tag, id => $opts->{id} if $opts->{id};
-  %= tag @tag, begin
-    %== $pod
-    % if ( $opts->{toggle_button} ) {
-      <br>
-      %= submit_button 'Toggle Line Numbers', class => 'ppi-toggle', onClick => "toggleLineNumbers('$opts->{id}')"
-    % }
-  % end
+% my @tag = $opts->{inline} ? 'span' : 'pre';
+% push @tag, class => 'ppi-code';
+% push @tag, id => $opts->{id} if $opts->{id};
+%= tag @tag, begin
+%== $pod
+% end
+  % if ( $opts->{toggle_button} ) {
+    <br>
+    %= submit_button 'Toggle Line Numbers', class => 'ppi-toggle', onClick => "toggleLineNumbers('$opts->{id}')"
+  % }
 TEMPLATE
+
+has 'static_path' => sub {
+  File::Spec->catdir(File::Basename::dirname(__FILE__), 'PPI', 'public');
+};
 
 sub register {
   my ($plugin, $app) = (shift, shift);
   $plugin->initialize($app, @_);
 
-  push @{$app->static->paths}, File::Spec->catdir(dirname(__FILE__), 'PPI', 'public');
+  push @{$app->static->paths}, $plugin->static_path;
 
   $app->helper( ppi_plugin => sub { $plugin } );
   $app->helper( ppi => sub { $_[0]->ppi_plugin->ppi(@_) } );

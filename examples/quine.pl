@@ -3,7 +3,7 @@
 use Mojolicious::Lite;
 use lib 'lib';
 
-plugin 'PPI';
+plugin 'PPI' => { toggle_button => 1 };
 get '/' => sub {
   my $self = shift;
   $self->stash( file => __FILE__ );
@@ -23,6 +23,6 @@ __DATA__
     %= stylesheet 'ppi.css'
   </head>
   <body>
-    %= ppi $file;
+    <%= ppi $file %>
   </body>
 </html>

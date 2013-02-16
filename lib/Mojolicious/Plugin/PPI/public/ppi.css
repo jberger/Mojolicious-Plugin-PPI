@@ -6,6 +6,10 @@
   padding: 15px;
 }
 
+pre.ppi-code br {
+  display: none;
+}
+
 .ppi-code .cast { color: #339999; }
 .ppi-code .comment { color: #008080; }
 .ppi-code .core { color: #FF0000; }
@@ -22,7 +26,7 @@
 .ppi-code .pod { color: #008080; }
 .ppi-code .pragma { color: #A33AF7; }
 .ppi-code .regex { color: #9900FF; }
-.ppi-code .single { color: #999999; }
+.ppi-code .single { color: #FF33FF; }
 .ppi-code .substitute { color: #9900FF; }
 .ppi-code .symbol { color: #389A7D; }
 .ppi-code .transliterate { color: #9900FF; }
