@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use Mojo::Base -strict;
 
-use Test::More tests => 25;
+use Test::More;
 
 use Mojolicious::Lite;
 use Test::Mojo;
@@ -15,32 +15,36 @@ get '/toggle' => 'toggle';
 my $t = Test::Mojo->new;
 $t->get_ok('/inline')
   ->status_is(200)
-  ->element_exists( 'span.code' )
+  ->element_exists( 'span.ppi-code' )
   ->text_is('span.symbol' => '@world')
-  ->element_exists_not('span.line_number');
+  ->element_exists_not('span.line_number')
+  ->element_exists(".ppi-code[id=ppi1]");
 
 $t->get_ok('/file')
   ->status_is(200)
-  ->element_exists( 'div.code' )
+  ->element_exists( 'div.ppi-code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number')
-  ->element_exists_not('input');
+  ->element_exists_not('input')
+  ->element_exists(".ppi-code[id=ppi2]");
 
 $t->get_ok('/toggle')
   ->status_is(200)
-  ->element_exists( 'div.code' )
+  ->element_exists( 'div.ppi-code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number')
   ->element_exists('input')
-  ->element_exists(".code[id=ppi1]");
+  ->element_exists(".ppi-code[id=ppi3]");
 
 $t->get_ok('/toggle')
   ->status_is(200)
-  ->element_exists( 'div.code' )
+  ->element_exists( 'div.ppi-code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number')
   ->element_exists('input')
-  ->element_exists(".code[id=ppi2]");
+  ->element_exists(".ppi-code[id=ppi4]");
+
+done_testing;
 
 __DATA__
 

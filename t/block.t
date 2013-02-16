@@ -14,13 +14,13 @@ get '/block-inline' => 'block-inline';
 my $t = Test::Mojo->new;
 $t->get_ok('/block')
   ->status_is(200)
-  ->element_exists( 'div.code' )
+  ->element_exists( 'div.ppi-code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number');
 
 $t->get_ok('/block-inline')
   ->status_is(200)
-  ->element_exists( 'span.code' )
+  ->element_exists( 'span.ppi-code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists_not('span.line_number');
 

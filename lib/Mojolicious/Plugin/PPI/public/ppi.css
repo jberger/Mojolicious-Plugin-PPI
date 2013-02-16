@@ -1,4 +1,4 @@
-.code { 
+.ppi-code { 
   display: inline-block;
   min-width: 400px;
   background-color: #F8F8F8;
@@ -6,25 +6,25 @@
   padding: 15px;
 }
 
-.cast { color: #339999 ;}
-.comment { color: #008080 ;}
-.core { color: #FF0000 ;}
-.double { color: #999999 ;}
-.heredoc_content { color: #FF0000 ;}
-.interpolate { color: #999999 ;}
-.keyword { color: #BD2E2A ;}
-.line_number { color: #666666 ;}
-.literal { color: #999999 ;}
-.magic { color: #0099FF ;}
-.match { color: #9900FF ;}
-.number { color: #990000 ;}
-.operator { color: #DD7700 ;}
-.pod { color: #008080 ;}
-.pragma { color: #A33AF7 ;}
-.regex { color: #9900FF ;}
-.single { color: #999999 ;}
-.substitute { color: #9900FF ;}
-.symbol { color: #389A7D ;}
-.transliterate { color: #9900FF ;}
-.word { color: #999999 ;}
+.ppi-code .cast { color: #339999; }
+.ppi-code .comment { color: #008080; }
+.ppi-code .core { color: #FF0000; }
+.ppi-code .double { color: #999999; }
+.ppi-code .heredoc_content { color: #FF0000; }
+.ppi-code .interpolate { color: #999999; }
+.ppi-code .keyword { color: #BD2E2A; }
+.ppi-code .line_number { color: #666666; }
+.ppi-code .literal { color: #999999; }
+.ppi-code .magic { color: #0099FF; }
+.ppi-code .match { color: #9900FF; }
+.ppi-code .number { color: #990000; }
+.ppi-code .operator { color: #DD7700; }
+.ppi-code .pod { color: #008080; }
+.ppi-code .pragma { color: #A33AF7; }
+.ppi-code .regex { color: #9900FF; }
+.ppi-code .single { color: #999999; }
+.ppi-code .substitute { color: #9900FF; }
+.ppi-code .symbol { color: #389A7D; }
+.ppi-code .transliterate { color: #9900FF; }
+.ppi-code .word { color: #999999; }
 

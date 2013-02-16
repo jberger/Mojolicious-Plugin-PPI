@@ -1,68 +1,48 @@
 package Mojolicious::Plugin::PPI;
+
 use Mojo::Base 'Mojolicious::Plugin';
-use Mojo::ByteStream;
+use Mojo::Template;
+
+use Mojo::ByteStream 'b';
 use Mojo::Util qw/trim/;
 
 use File::Basename 'dirname';
-use File::Spec::Functions qw/catdir catfile/;
+use File::Spec;
 
 use PPI::HTML;
 
 our $VERSION = '0.02';
 
-has 'ppi' => sub { PPI::HTML->new( line_numbers => 1 ) };
+has 'no_check_file' => 0;
+has 'ppi_html' => sub { PPI::HTML->new( line_numbers => 1 ) };
+has 'line_numbers'  => 1;
 has 'toggle_button' => 0;
-has 'src_folder' => '';
+has 'src_folder';
 has 'id' => 1;
+has 'template' => <<'TEMPLATE';
+  % my @tag = $opts->{inline} ? 'span' : 'div';
+  % push @tag, class => 'ppi-code';
+  % push @tag, id => $opts->{id} if $opts->{id};
+  %= tag @tag, begin
+    %== $pod
+    % if ( $opts->{toggle_button} ) {
+      <br>
+      %= submit_button 'Toggle Line Numbers', class => 'ppi-toggle', onClick => "toggleLineNumbers('$opts->{id}')"
+    % }
+  % end
+TEMPLATE
 
 sub register {
-  my ($plugin, $app, $args) = @_;
-  $plugin->_process_init_opts($app, $args);
+  my ($plugin, $app) = (shift, shift);
+  $plugin->initialize($app, @_);
 
-  push @{$app->static->paths}, catdir(dirname(__FILE__), 'PPI', 'public');
+  push @{$app->static->paths}, File::Spec->catdir(dirname(__FILE__), 'PPI', 'public');
 
-  $app->helper( 
-    ppi => sub {
-      my $c = shift;
-      my %opts = $plugin->_process_helper_opts(@_);
-
-      $opts{inline} ||= 0;
-      my $outer_type = $opts{inline} ? 'span' : 'div';
-
-      $opts{toggle_button} //= $plugin->toggle_button;               #/# highlight fix
-      if ( $opts{inline} ) {
-        $opts{toggle_button} = 0;
-      }
-
-      if ( $opts{toggle_button} ) {
-        ## a hide button will require a div id, so make one if not specified
-        $opts{id} //= $plugin->_generate_id;              #/# highlight fix
-        ## override if toggle_button is to be used
-        $opts{line_numbers} = 1;
-      }
-
-      $plugin->ppi->{line_numbers} = $opts{line_numbers} //= ! $opts{inline};     #/# highlight fix
-
-      my $return = qq[<$outer_type class="code"] . (defined $opts{id} ? " id=\"$opts{id}\"" : '') . '>' ;
-
-      if ( $opts{file} ) {
-        $return .= $plugin->ppi->html( $opts{file} );
-      } else {             
-        $return .= $plugin->ppi->html( \$opts{string} );
-      }
-
-      if ($opts{toggle_button}) {
-        $return .= 
-          qq[\n<br><input type="submit" value="Toggle Line Numbers" onClick="toggleLineNumbers('$opts{id}')" />];
-      }
-      $return .= "</$outer_type>";
-
-      return Mojo::ByteStream->new($return);
-    }
-  );
+  $app->helper( ppi_plugin => sub { $plugin } );
+  $app->helper( ppi => sub { $_[0]->ppi_plugin->ppi(@_) } );
 }
 
-sub _process_init_opts {
+sub initialize {
   my ($plugin, $app, $args) = @_;
 
   if (exists $args->{toggle_button}) {
@@ -70,7 +50,6 @@ sub _process_init_opts {
   }
 
   if ( my $src_folder = delete $args->{src_folder} ) {
-    warn "Could not find folder $src_folder\n" unless (-d $src_folder);
     $plugin->src_folder( $src_folder );     
   }
 
@@ -79,16 +58,55 @@ sub _process_init_opts {
   }
 }
 
+sub ppi {
+  my $plugin = shift;
+  my $c = shift;
+
+  my %opts = (
+    id => $plugin->_generate_id,
+    inline => 0,
+    line_numbers => $plugin->line_numbers,
+    toggle_button => $plugin->toggle_button,
+  );
+
+  %opts = ( %opts, $plugin->_process_helper_opts(@_) );
+
+  if ( $opts{inline} ) {
+    $opts{line_numbers}  = 0;
+    $opts{toggle_button} = 0;
+  }
+
+  $opts{line_numbers} = 1 if $opts{toggle_button};
+
+  $plugin->ppi_html->{line_numbers} = $opts{line_numbers};
+  my $pod = $plugin->ppi_html->html( $opts{file} ? $opts{file} : \$opts{string} );
+
+  my $return = $c->render( 
+    partial => 1, 
+    inline  => $plugin->template,
+    opts    => \%opts,
+    pod     => $pod,
+  );
+
+  return b($return);
+}
+
+sub _generate_id {
+  my $plugin = shift;
+  my $id = $plugin->id;
+  $plugin->id( $id + 1 );
+  return "ppi$id";
+}
+
 sub _process_helper_opts {
   my $plugin = shift;
 
-  my $string;
-  {
+  my $string = do {
     no warnings 'uninitialized';
     if (ref $_[-1] eq 'CODE') {
-      $string = trim pop->();
+      trim pop->();
     }
-  }
+  };
 
   my %opts;
   if (ref $_[-1]) {
@@ -96,35 +114,33 @@ sub _process_helper_opts {
   }
 
   if ( @_ % 2 ) { 
-    if ( $string ) {
-      warn "Both a string and a block were provided, using the block\n";
-    } else {
-      $string = shift;
-      my $filename = $plugin->src_folder ? catfile( $plugin->src_folder, $string ) : $string;
-      if ( -e $filename ) {
-        $opts{file} = $filename;
-      } else {
-        $opts{inline} //= 1;                #/# fix highlight
-      }
+    die "Cannot specify both a string and a block\n" if $string;
+
+    $string = shift;
+    $opts{file} = $plugin->_check_file($string);
+    unless ( $opts{file} ) {
+      $opts{inline} //= 1;                #/# fix highlight
     }
+
   }
 
-  if ( @_ ) {
-    %opts = (%opts, @_);
-  }
+  %opts = (%opts, @_) if @_;
 
   $opts{string} = $string unless defined $opts{file};
 
   return %opts;
 }
 
-sub _generate_id {
-  my $plugin = shift;
-  my $id = $plugin->id;
+sub _check_file {
+  my ($self, $file) = @_;
+  return undef if $self->no_check_file;
 
-  #create the next id, roll over at 10000
-  $plugin->id( ($id + 1) % 10000 );
-  return "ppi$id";
+  if ( my $folder = $self->src_folder ) {
+    die "Could not find folder $folder\n" unless -d $folder;
+    $file = File::Spec->catfile( $folder, $file );
+  }
+
+  return -e $file ? $file : undef;
 }
 
 1;
