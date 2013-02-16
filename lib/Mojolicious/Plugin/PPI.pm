@@ -3,8 +3,7 @@ package Mojolicious::Plugin::PPI;
 use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::Template;
 
-use Mojo::ByteStream 'b';
-use Mojo::Util qw/trim/;
+use Mojo::Util;
 
 use File::Basename ();
 use File::Spec;
@@ -92,13 +91,13 @@ sub ppi {
     pod     => $pod,
   );
 
-  return b($return);
+  return $return;
 }
 
 sub _generate_id {
   my $plugin = shift;
   my $id = $plugin->id;
-  $plugin->id( $id + 1 );
+  $plugin->id( ($id + 1) % 10000 );
   return "ppi$id";
 }
 
@@ -108,7 +107,7 @@ sub _process_helper_opts {
   my $string = do {
     no warnings 'uninitialized';
     if (ref $_[-1] eq 'CODE') {
-      trim pop->();
+      Mojo::Util::trim pop->();
     }
   };
 
