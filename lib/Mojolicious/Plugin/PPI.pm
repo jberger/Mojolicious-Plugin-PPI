@@ -1,7 +1,6 @@
 package Mojolicious::Plugin::PPI;
 
 use Mojo::Base 'Mojolicious::Plugin';
-use Mojo::Template;
 
 use Mojo::Util;
 
@@ -12,12 +11,16 @@ use PPI::HTML;
 
 our $VERSION = '0.02';
 
+has 'id' => 1;
+has 'line_numbers'  => 1;
 has 'no_check_file' => 0;
 has 'ppi_html' => sub { PPI::HTML->new( line_numbers => 1 ) };
-has 'line_numbers'  => 1;
-has 'toggle_button' => 0;
 has 'src_folder';
-has 'id' => 1;
+
+has 'static_path' => sub {
+  File::Spec->catdir(File::Basename::dirname(__FILE__), 'PPI', 'public');
+};
+
 has 'template' => <<'TEMPLATE';
 % my @tag = $opts->{inline} ? 'span' : 'pre';
 % push @tag, class => 'ppi-code';
@@ -31,9 +34,7 @@ has 'template' => <<'TEMPLATE';
   % }
 TEMPLATE
 
-has 'static_path' => sub {
-  File::Spec->catdir(File::Basename::dirname(__FILE__), 'PPI', 'public');
-};
+has 'toggle_button' => 0;
 
 sub register {
   my ($plugin, $app) = (shift, shift);
@@ -94,6 +95,18 @@ sub ppi {
   return $return;
 }
 
+sub _check_file {
+  my ($self, $file) = @_;
+  return undef if $self->no_check_file;
+
+  if ( my $folder = $self->src_folder ) {
+    die "Could not find folder $folder\n" unless -d $folder;
+    $file = File::Spec->catfile( $folder, $file );
+  }
+
+  return -e $file ? $file : undef;
+}
+
 sub _generate_id {
   my $plugin = shift;
   my $id = $plugin->id;
@@ -134,19 +147,8 @@ sub _process_helper_opts {
   return %opts;
 }
 
-sub _check_file {
-  my ($self, $file) = @_;
-  return undef if $self->no_check_file;
-
-  if ( my $folder = $self->src_folder ) {
-    die "Could not find folder $folder\n" unless -d $folder;
-    $file = File::Spec->catfile( $folder, $file );
-  }
-
-  return -e $file ? $file : undef;
-}
-
 1;
+
 __END__
 
 =head1 NAME
