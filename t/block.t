@@ -14,7 +14,7 @@ get '/block-inline' => 'block-inline';
 my $t = Test::Mojo->new;
 $t->get_ok('/block')
   ->status_is(200)
-  ->element_exists( 'div.ppi-code' )
+  ->element_exists( 'pre.ppi-code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists('span.line_number');
 
