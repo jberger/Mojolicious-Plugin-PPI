@@ -23,6 +23,6 @@ __DATA__
     %= stylesheet 'ppi.css'
   </head>
   <body>
-    <%= ppi $file %>
+    %= ppi $file
   </body>
 </html>
