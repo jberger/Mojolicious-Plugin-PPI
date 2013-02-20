@@ -165,11 +165,14 @@ Mojolicious::Plugin::PPI - Mojolicious Plugin for Rendering Perl Code Using PPI
 
 =head1 SYNOPSIS
 
-  # Mojolicious
-  $self->plugin('PPI');
+ # Mojolicious
+ $self->plugin('PPI');
 
-  # Mojolicious::Lite
-  plugin 'PPI';
+ # Mojolicious::Lite
+ plugin 'PPI';
+
+ # In your template
+ Perl is as simple as <%= ppi q{say "Hello World"} %>.
 
 =head1 DESCRIPTION
 
