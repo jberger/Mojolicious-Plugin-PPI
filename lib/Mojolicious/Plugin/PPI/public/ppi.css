@@ -1,3 +1,5 @@
+/* Simple CSS Styling for Mojolicious::Plugin::PPI */
+
 .ppi-code { 
   display: inline-block;
   min-width: 400px;

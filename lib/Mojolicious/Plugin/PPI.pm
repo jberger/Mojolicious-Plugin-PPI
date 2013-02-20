@@ -6,6 +6,7 @@ use Mojo::Util;
 
 use File::Basename ();
 use File::Spec;
+use File::ShareDir ();
 
 use PPI::HTML;
 
@@ -18,7 +19,13 @@ has 'ppi_html' => sub { PPI::HTML->new( line_numbers => 1 ) };
 has 'src_folder';
 
 has 'static_path' => sub {
-  File::Spec->catdir(File::Basename::dirname(__FILE__), 'PPI', 'public');
+  my $local = File::Spec->catdir(File::Basename::dirname(__FILE__), 'PPI', 'public');
+  return $local if -d $local;
+
+  my $share = File::ShareDir::dist_dir('Mojolicious-Plugin-PPI');
+  return $share if -d $share;
+
+  warn "Cannot find static content for Mojolicious::Plugin::PPI, (checked $local and $share). The bundled javascript and css files will not work correctly.\n";
 };
 
 has 'template' => <<'TEMPLATE';
