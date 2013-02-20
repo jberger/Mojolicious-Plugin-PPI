@@ -231,11 +231,23 @@ C<< toggle_button => [0/1] >> specifies if a button should be created to toggle 
 
 =back
 
-=head2 C<ppi_js>
+=head2 C<ppi_plugin>
+
+Holds the active instance of L<Mojolicious::Plugin::PPI>.
+
+=head1 STATIC FILES
+
+These bundled files are added to your static files paths.
+
+=head2 C</ppi.js>
+
+ %= javascript '/ppi.js'
 
 Returns a Javascript snippet useful when using L<Mojolicious::Plugin::PPI>.
 
-=head2 C<ppi_css>
+=head2 C</ppi.css>
+
+ %= stylesheet '/ppi.css'
 
 Returns a CSS snippet for coloring the L<PPI::HTML> generated HTML. Also provides a background for the code blocks.
 
