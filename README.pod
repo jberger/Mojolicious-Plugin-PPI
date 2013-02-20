@@ -15,7 +15,7 @@ Mojolicious::Plugin::PPI - Mojolicious Plugin for Rendering Perl Code Using PPI
 
 =head1 DESCRIPTION
 
-L<Mojolicious::Plugin::PPI> is a L<Mojolicious> plugin.
+L<Mojolicious::Plugin::PPI> is a L<Mojolicious> plugin which adds Perl syntax highlighting via L<PPI> and L<PPI::HTML>. Perl is notoriously hard to properly syntax highlight, but since L<PPI> is made especially for parsing Perl this plugin can help you show off your Perl scripts in your L<Mojolicious> webapp.
 
 =head1 METHODS
 
@@ -95,7 +95,7 @@ Returns a CSS snippet for coloring the L<PPI::HTML> generated HTML. Also provide
 
 =head1 SEE ALSO
 
-L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicio.us>.
+L<Mojolicious>, L<PPI>, L<PPI::HTML>
 
 L<PPI>, L<PPI::HTML>
 
