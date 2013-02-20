@@ -10,7 +10,8 @@ use File::ShareDir ();
 
 use PPI::HTML;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
+$VERSION = eval $VERSION;
 
 has 'id' => 1;
 has 'line_numbers'  => 1;
