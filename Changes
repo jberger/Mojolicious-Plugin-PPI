@@ -1,0 +1,13 @@
+Revision history for Perl extension Mojolicious::Plugin::PPI.
+
+0.03  Feb 19, 2013
+	- removed ppi_js and ppi_css helper in favor of static files
+	- added ppi_plugin helper which contains plugin instance
+	- improved tests and documentation
+
+0.02  Nov 06, 2011 
+	- improved documentation
+
+0.01  Nov 03, 2011 
+	- initial release
+
