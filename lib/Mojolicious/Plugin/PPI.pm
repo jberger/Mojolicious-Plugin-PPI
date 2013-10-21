@@ -14,7 +14,6 @@ use PPI::HTML;
 our $VERSION = '0.03';
 $VERSION = eval $VERSION;
 
-has 'id' => 1;
 has 'line_numbers'  => 1;
 has 'no_check_file' => 0;
 has 'ppi_html_on'  => sub { PPI::HTML->new( line_numbers => 1 ) };
@@ -28,10 +27,6 @@ has style => <<'END';
   background-color: #F8F8F8;
   border-radius: 10px;
   padding: 15px;
-}
-
-pre.ppi-code br {
-  display: none;
 }
 END
 
@@ -180,7 +175,12 @@ sub process_converter_opts {
 
 sub generate_css {
   my ($plugin, $c) = @_;
-  my $sheet = b($plugin->style."\n");
+  my $sheet = b(<<'END');
+pre.ppi-code br {
+  display: none;
+}
+END
+  $$sheet .= $plugin->style."\n";
   my $cs = $plugin->class_style;
   foreach my $key (sort keys %$cs) {
     my $value = $cs->{$key};
