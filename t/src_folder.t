@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use Mojo::Base -strict;
 
-use Test::More tests => 5;
+use Test::More;
 
 use Mojolicious::Lite;
 use Test::Mojo;
@@ -14,8 +14,7 @@ my $t = Test::Mojo->new;
 $t->get_ok('/file')
   ->status_is(200)
   ->text_is('span.symbol' => '@world')
-  ->element_exists('span.line_number')
-  ->element_exists_not('input');
+  ->element_exists('span.line_number');
 
 done_testing;
 
@@ -30,8 +29,6 @@ Hello <%= ppi 'test.pl' %>
   <!doctype html><html>
     <head>
       <title><%= title %></title>
-      %= javascript 'ppi.js'
-      %= stylesheet 'ppi.css'
     </head>
     <body><%= content %></body>
   </html>

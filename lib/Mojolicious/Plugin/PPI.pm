@@ -71,7 +71,7 @@ sub register {
 
   $app->helper( ppi => sub {
     return $plugin if @_ == 1;
-    return $_[0]->ppi_plugin->ppi(@_) 
+    return $plugin->convert(@_); 
   });
   $app->helper( ppi_css => sub { $_[0]->ppi->generate_css(@_) } );
 }
@@ -88,7 +88,7 @@ sub initialize {
   }
 }
 
-sub ppi {
+sub convert {
   my $plugin = shift;
   my $c = shift;
 
@@ -198,12 +198,12 @@ __DATA__
 
 @@ ppi_template.html.ep
 
-% if stash('ppi.js.required') and not stash('ppi.js.added') {
-  %= javascript 'ppi_js'
+% if ( stash('ppi.js.required') and not stash('ppi.js.added') ) {
+  %= javascript '/ppi_js.js'
   % stash('ppi.js.added' => 1);
 % }
 
-<%= tag stash('ppi.tag') => begin =%>
+<%= tag @{stash('ppi.tag')} => begin =%>
   <%== stash('ppi.code') =%>
 <% end %>
 
