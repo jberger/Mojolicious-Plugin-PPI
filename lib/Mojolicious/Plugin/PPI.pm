@@ -11,7 +11,7 @@ use File::ShareDir ();
 
 use PPI::HTML;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 $VERSION = eval $VERSION;
 
 has 'line_numbers'  => 1;
@@ -279,6 +279,14 @@ C<< no_check_file => [0/1] >> specifies if a file check should be performed. Def
 
 C<< src_folder => 'directory' >> specifies a folder where input files will be found. When specified, if the directory is not found, a warning is issued, but not fatally. This functionality is not (currently) available for per-file alteration, so only use if all files will be in this folder (or subfolder). Remeber, if this option is not specified, a full or relative path may be passed to L</ppi>.
 
+=item *
+
+C<< style => '.ppi-code { some: style; }' >> a string of overall style sheet to be applied via the C<ppi_css> helper.
+
+=item *
+
+C<< class_style => { class => 'string color', other_class => { style => 'pairs' } } >> This hashref's keys are individual element style definitions. If the value is a string, it is used as the value of the color attribute. If the value is another hashref, it is converted into style definitions.
+
 =back
 
 =head1 METHODS
@@ -301,6 +309,8 @@ L<Mojolicous::Plugin::PPI> provides these helpers:
   %== ppi 'file.pl'
 
 Returns HTML form of Perl snippet or file. The behavior may be slightly different in each case. If the argument is the name of a file that exists, it will be loaded and used. If not the string will be interpreted as an inline snippet. In either form, the call to C<ppi> may take the additional option:
+
+Additional key-value pairs may be passed which override the object's defaults. Most attributes are available (except: C<no_check_file> for now) and the additional key C<inline> lets you override the default choice of display inline vs block (by string vs file respectively).
 
 =head2 C<ppi_css>
 
