@@ -20,7 +20,7 @@ $t->get_ok('/block')
 
 $t->get_ok('/block-inline')
   ->status_is(200)
-  ->element_exists( 'span.ppi-code' )
+  ->element_exists( 'code.ppi-code' )
   ->text_is('span.symbol' => '@world')
   ->element_exists_not('span.line_number');
 
@@ -46,8 +46,6 @@ Hello
   <!doctype html><html>
     <head>
       <title><%= title %></title>
-      %= javascript 'ppi.js'
-      %= stylesheet 'ppi.css'
     </head>
     <body><%= content %></body>
   </html>

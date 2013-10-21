@@ -94,10 +94,12 @@ sub convert {
 
   my %opts = (
     inline => 0,
-    line_numbers => $plugin->line_numbers,
   );
 
   %opts = ( %opts, $plugin->process_converter_opts(@_) );
+
+  $opts{line_numbers} //= 0 if $opts{inline};
+  $opts{line_numbers} //= $plugin->line_numbers;
 
   my $converter = 
     $opts{line_numbers}
@@ -164,7 +166,7 @@ sub process_converter_opts {
     $string = shift;
     $opts{file} = $plugin->check_file($string);
     unless ( $opts{file} ) {
-      $opts{inline} //= 1;                #/# fix highlight
+      $opts{inline} //= 1;
     }
 
   }
