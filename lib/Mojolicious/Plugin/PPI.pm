@@ -177,11 +177,7 @@ sub process_converter_opts {
 
 sub generate_css {
   my ($plugin, $c) = @_;
-  my $sheet = b(<<'END');
-pre.ppi-code br {
-  display: none;
-}
-END
+  my $sheet = b("pre.ppi-code br { display: none; }\n");
   $$sheet .= $plugin->style."\n";
   my $cs = $plugin->class_style;
   foreach my $key (sort keys %$cs) {
