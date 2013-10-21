@@ -72,14 +72,20 @@ sub register {
 }
 
 sub initialize {
-  my ($plugin, $app, $args) = @_;
-
-  if ( my $src_folder = delete $args->{src_folder} ) {
-    $plugin->src_folder( $src_folder );     
+  my ($plugin, $app) = (shift, shift);
+  my %opts = @_ == 1 ? %{$_[0]} : @_;
+  my @unknown;
+  foreach my $key (keys %opts) {
+    my $code = $plugin->can($key);
+    unless ($code) {
+      push @unknown, $key;
+      next;
+    }
+    $plugin->$code($opts{$key});
   }
 
-  if ( keys %$args ) {
-    warn "Unknown option(s): " . join(", ", keys %$args) . "\n";
+  if ( @unknown ) {
+    warn "Unknown option(s): " . join(", ", @unknown) . "\n";
   }
 }
 
@@ -87,14 +93,7 @@ sub convert {
   my $plugin = shift;
   my $c = shift;
 
-  my %opts = (
-    inline => 0,
-  );
-
-  %opts = ( %opts, $plugin->process_converter_opts(@_) );
-
-  $opts{line_numbers} //= 0 if $opts{inline};
-  $opts{line_numbers} //= $plugin->line_numbers;
+  my %opts = $plugin->process_converter_opts(@_);
 
   my $converter = 
     $opts{line_numbers}
@@ -169,6 +168,9 @@ sub process_converter_opts {
   %opts = (%opts, @_) if @_;
 
   $opts{string} = $string unless defined $opts{file};
+
+  $opts{line_numbers} //= 0 if $opts{inline};
+  $opts{line_numbers} //= $plugin->line_numbers;
 
   return %opts;
 }
@@ -263,28 +265,35 @@ Mojolicious::Plugin::PPI - Mojolicious Plugin for Rendering Perl Code Using PPI
 
 L<Mojolicious::Plugin::PPI> is a L<Mojolicious> plugin which adds Perl syntax highlighting via L<PPI> and L<PPI::HTML>. Perl is notoriously hard to properly syntax highlight, but since L<PPI> is made especially for parsing Perl this plugin can help you show off your Perl scripts in your L<Mojolicious> webapp.
 
-=head1 METHODS
+=head1 ATTRIBUTES
 
-L<Mojolicious::Plugin::PPI> inherits all methods from
-L<Mojolicious::Plugin> and implements the following new ones.
-
-=head2 C<register>
-
-  $plugin->register;
-
-Register plugin in L<Mojolicious> application. A register time, several options may be supplied:
+L<Mojolicious::Plugin::PPI> inherits all methods from L<Mojolicious::Plugin> and implements the following new ones.
 
 =over
 
 =item *
 
-C<< toggle_button => [0/1] >> specifies whether a "Toggle Line Numbers" button (see below) will be created by default. Default is false.
+C<< line_numbers => [0/1] >> specifies if line numbers should be generated. Defaults to C<1> for file-based snippets, however C<0> is used for an inline snipppet unless explicitly overridden in the helper arguments.
 
 =item *
 
-C<< src_folder => 'directory' >> specifies a folder where input files will be found. When specified, if the directory is not found, a warning is issued, but not fatally. This functionality is not (currently) available for per-file alteration, so only use if all files will be in this folder (or subfolder). Remeber, if this option is not specified, a full or relative path may be passed to L</ppi>. 
+C<< no_check_file => [0/1] >> specifies if a file check should be performed. Default C<1>.
+
+=item *
+
+C<< src_folder => 'directory' >> specifies a folder where input files will be found. When specified, if the directory is not found, a warning is issued, but not fatally. This functionality is not (currently) available for per-file alteration, so only use if all files will be in this folder (or subfolder). Remeber, if this option is not specified, a full or relative path may be passed to L</ppi>.
 
 =back
+
+=head1 METHODS
+
+L<Mojolicious::Plugin::PPI> inherits all methods from L<Mojolicious::Plugin> and implements the following new ones.
+
+=head2 C<register>
+
+  $plugin->register;
+
+Register plugin in L<Mojolicious> application. At register time, key-value pairs for the plugin attributes may be supplied.
 
 =head1 HELPERS
 
@@ -297,47 +306,9 @@ L<Mojolicous::Plugin::PPI> provides these helpers:
 
 Returns HTML form of Perl snippet or file. The behavior may be slightly different in each case. If the argument is the name of a file that exists, it will be loaded and used. If not the string will be interpreted as an inline snippet. In either form, the call to C<ppi> may take the additional option:
 
-=over
+=head2 C<ppi_css>
 
-=item *
-
-C<< line_numbers => [0/1] >> specifies if line numbers should be generated
-
-=back
-
-In the case of a file, the contents are placed in a C<< <div> >> tag, and there are several additional options
-
-=over
-
-=item *
-
-C<< id => 'string' >> specifies the C<id> to be given to the encompassing C<< <div> >> tag
-
-=item *
-
-C<< toggle_button => [0/1] >> specifies if a button should be created to toggle the line numbers. If given C<line_numbers> will be forced and if not specified an C<id> will be generated. The C<onClick> handler is C<toggleLineNumbers> from the C<ppi_js> javascript library. C<toggle_button> may also be specified at register time to set the default.
-
-=back
-
-=head2 C<ppi_plugin>
-
-Holds the active instance of L<Mojolicious::Plugin::PPI>.
-
-=head1 STATIC FILES
-
-These bundled files are added to your static files paths.
-
-=head2 C</ppi.js>
-
- %= javascript '/ppi.js'
-
-Returns a Javascript snippet useful when using L<Mojolicious::Plugin::PPI>.
-
-=head2 C</ppi.css>
-
- %= stylesheet '/ppi.css'
-
-Returns a CSS snippet for coloring the L<PPI::HTML> generated HTML. Also provides a background for the code blocks.
+Injects a generated CSS style into the page, using style properties defined in the plugin attributes.
 
 =head1 SEE ALSO
 

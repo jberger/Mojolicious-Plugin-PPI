@@ -3,7 +3,7 @@
 use Mojolicious::Lite;
 use lib 'lib';
 
-plugin 'PPI' => { toggle_button => 1 };
+plugin 'PPI';
 get '/' => sub {
   my $self = shift;
   $self->stash( file => __FILE__ );
