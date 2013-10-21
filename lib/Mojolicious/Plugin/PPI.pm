@@ -3,6 +3,7 @@ package Mojolicious::Plugin::PPI;
 use Mojo::Base 'Mojolicious::Plugin';
 
 use Mojo::Util;
+use Mojo::ByteStream 'b';
 
 use File::Basename ();
 use File::Spec;
@@ -16,50 +17,67 @@ $VERSION = eval $VERSION;
 has 'id' => 1;
 has 'line_numbers'  => 1;
 has 'no_check_file' => 0;
-has 'ppi_html' => sub { PPI::HTML->new( line_numbers => 1 ) };
+has 'ppi_html_on'  => sub { PPI::HTML->new( line_numbers => 1 ) };
+has 'ppi_html_off' => sub { PPI::HTML->new( line_numbers => 0 ) };
 has 'src_folder';
 
-has 'static_path' => sub {
-  my $local = File::Spec->catdir(File::Basename::dirname(__FILE__), 'PPI', 'public');
-  return $local if -d $local;
+has style => <<'END';
+.ppi-code { 
+  display: inline-block;
+  min-width: 400px;
+  background-color: #F8F8F8;
+  border-radius: 10px;
+  padding: 15px;
+}
 
-  my $share = File::ShareDir::dist_dir('Mojolicious-Plugin-PPI');
-  return $share if -d $share;
+pre.ppi-code br {
+  display: none;
+}
+END
 
-  warn "Cannot find static content for Mojolicious::Plugin::PPI, (checked $local and $share). The bundled javascript and css files will not work correctly.\n";
-};
+has class_style => sub {{
+  line_number_on   => { display => 'inline' },
+  line_number_off  => { display => 'none'   },
 
-has 'template' => <<'TEMPLATE';
-% my @tag = $opts->{inline} ? 'span' : 'pre';
-% push @tag, class => 'ppi-code';
-% push @tag, id => $opts->{id} if $opts->{id};
-%= tag @tag, begin
-%== $pod
-% end
-  % if ( $opts->{toggle_button} ) {
-    <br>
-    %= submit_button 'Toggle Line Numbers', class => 'ppi-toggle', onClick => "toggleLineNumbers('$opts->{id}')"
-  % }
-TEMPLATE
-
-has 'toggle_button' => 0;
+  cast => '#339999',
+  comment => '#008080',
+  core => '#FF0000',
+  double => '#999999',
+  heredoc_content => '#FF0000',
+  interpolate => '#999999',
+  keyword => '#BD2E2A',
+  line_number => '#666666',
+  literal => '#999999',
+  magic => '#0099FF',
+  match => '#9900FF',
+  number => '#990000',
+  operator => '#DD7700',
+  pod => '#008080',
+  pragma => '#A33AF7',
+  regex => '#9900FF',
+  single => '#FF33FF',
+  substitute => '#9900FF',
+  symbol => '#389A7D',
+  transliterate => '#9900FF',
+  word => '#999999',
+}};
 
 sub register {
   my ($plugin, $app) = (shift, shift);
   $plugin->initialize($app, @_);
 
-  push @{$app->static->paths}, $plugin->static_path;
+  push @{$app->static->classes},   __PACKAGE__;
+  push @{$app->renderer->classes}, __PACKAGE__;
 
-  $app->helper( ppi_plugin => sub { $plugin } );
-  $app->helper( ppi => sub { $_[0]->ppi_plugin->ppi(@_) } );
+  $app->helper( ppi => sub {
+    return $plugin if @_ == 1;
+    return $_[0]->ppi_plugin->ppi(@_) 
+  });
+  $app->helper( ppi_css => sub { $_[0]->ppi->generate_css(@_) } );
 }
 
 sub initialize {
   my ($plugin, $app, $args) = @_;
-
-  if (exists $args->{toggle_button}) {
-    $plugin->toggle_button( delete $args->{toggle_button} );
-  }
 
   if ( my $src_folder = delete $args->{src_folder} ) {
     $plugin->src_folder( $src_folder );     
@@ -75,35 +93,45 @@ sub ppi {
   my $c = shift;
 
   my %opts = (
-    id => $plugin->_generate_id,
     inline => 0,
     line_numbers => $plugin->line_numbers,
-    toggle_button => $plugin->toggle_button,
   );
 
-  %opts = ( %opts, $plugin->_process_helper_opts(@_) );
+  %opts = ( %opts, $plugin->process_converter_opts(@_) );
 
-  if ( $opts{inline} ) {
-    $opts{line_numbers}  = 0;
-    $opts{toggle_button} = 0;
+  my $converter = 
+    $opts{line_numbers}
+    ? $plugin->ppi_html_on
+    : $plugin->ppi_html_off;
+
+  my $id = $plugin->generate_id($c);
+
+  my @tag = (
+    $opts{inline} ? 'code' : 'pre',
+    id    => $id,
+    class => 'ppi-code ' . ($opts{inline} ? 'ppi-inline' : 'ppi-block'),
+  );
+
+  if ($opts{line_numbers}) {
+    push @tag, ondblclick => "ppi_toggleLineNumbers($id)";
+    $c->stash('ppi.js.required' => 1);
   }
 
-  $opts{line_numbers} = 1 if $opts{toggle_button};
-
-  $plugin->ppi_html->{line_numbers} = $opts{line_numbers};
-  my $pod = $plugin->ppi_html->html( $opts{file} ? $opts{file} : \$opts{string} );
-
-  my $return = $c->render( 
-    partial => 1, 
-    inline  => $plugin->template,
-    opts    => \%opts,
-    pod     => $pod,
+  my %render_opts = (
+    partial    => 1,
+    'ppi.code' => $converter->html( $opts{file} ? $opts{file} : \$opts{string} ),
+    'ppi.tag'  => \@tag,
   );
 
-  return $return;
+  return $c->render('ppi_template', %render_opts);
 }
 
-sub _check_file {
+sub generate_id {
+  my ($plugin, $c) = @_;
+  return 'ppi' . $c->stash->{'ppi.id'}++;
+}
+
+sub check_file {
   my ($self, $file) = @_;
   return undef if $self->no_check_file;
 
@@ -115,14 +143,7 @@ sub _check_file {
   return -e $file ? $file : undef;
 }
 
-sub _generate_id {
-  my $plugin = shift;
-  my $id = $plugin->id;
-  $plugin->id( ($id + 1) % 10000 );
-  return "ppi$id";
-}
-
-sub _process_helper_opts {
+sub process_converter_opts {
   my $plugin = shift;
 
   my $string = do {
@@ -141,7 +162,7 @@ sub _process_helper_opts {
     die "Cannot specify both a string and a block\n" if $string;
 
     $string = shift;
-    $opts{file} = $plugin->_check_file($string);
+    $opts{file} = $plugin->check_file($string);
     unless ( $opts{file} ) {
       $opts{inline} //= 1;                #/# fix highlight
     }
@@ -155,7 +176,69 @@ sub _process_helper_opts {
   return %opts;
 }
 
+sub generate_css {
+  my ($plugin, $c) = @_;
+  my $sheet = b($plugin->style."\n");
+  my $cs = $plugin->class_style;
+  foreach my $key (sort keys %$cs) {
+    my $value = $cs->{$key};
+    $value = { color => $value } unless ref $value;
+    $$sheet .= ".ppi-code .$key { ";
+    foreach my $prop ( sort keys %$value ) {
+      $$sheet .= "$prop: $value->{$prop}; ";
+    }
+    $$sheet .= "}\n";
+  }
+  return $c->stylesheet(sub{$sheet});
+}
+
 1;
+
+__DATA__
+
+@@ ppi_template.html.ep
+
+% if stash('ppi.js.required') and not stash('ppi.js.added') {
+  %= javascript 'ppi_js'
+  % stash('ppi.js.added' => 1);
+% }
+
+<%= tag stash('ppi.tag') => begin =%>
+  <%== stash('ppi.code') =%>
+<% end %>
+
+@@ ppi_js.js
+
+function ppi_toggleLineNumbers(id) {
+  var spans = document.getElementById(id).getElementsByTagName("span");
+  for (i = 0; i < spans.length; i++){
+    var span = spans[i];
+    
+    if ( span.className.indexOf('line_number') == -1 ) {
+      continue;
+    }
+
+    var cl = span.className.split(' ');
+    var index_on  = cl.indexOf('line_number_on');
+    var index_off = cl.indexOf('line_number_off');
+
+    if (index_on != -1) {
+      cl.splice(index_on, 1);
+    }
+    if (index_off != -1) {
+      cl.splice(index_off, 1);
+    }
+
+    if ( index_off == -1 ) {
+      cl.push('line_number_off');
+    } else {
+      cl.push('line_number_on');
+    }
+
+    span.className = cl.join(' ');
+  }
+}
+
 
 __END__
 
