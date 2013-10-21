@@ -10,7 +10,6 @@ plugin 'PPI';
 
 get '/inline' => 'inline';
 get '/file'   => 'file';
-get '/toggle' => 'toggle';
 
 my $t = Test::Mojo->new;
 $t->get_ok('/inline')

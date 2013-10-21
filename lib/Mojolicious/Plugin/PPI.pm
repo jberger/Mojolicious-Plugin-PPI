@@ -115,7 +115,7 @@ sub convert {
   );
 
   if ($opts{line_numbers}) {
-    push @tag, ondblclick => "ppi_toggleLineNumbers($id)";
+    push @tag, ondblclick => "ppi_toggleLineNumbers('$id')";
     $c->stash('ppi.js.required' => 1);
   }
 

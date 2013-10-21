@@ -20,8 +20,7 @@ __DATA__
 <html>
   <head>
     <title><%= title %></title>
-    %= javascript 'ppi.js'
-    %= stylesheet 'ppi.css'
+    %= ppi_css
   </head>
   <body>
     <h2><%= title %></h2>
