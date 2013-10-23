@@ -15,6 +15,11 @@ my $build = Module::Build->new(
     'Mojolicious' => '2.0',
     'PPI::HTML'   => 0,
   },
+  meta_merge => {
+    resources => {
+      repository => 'https://github.com/jberger/Mojolicious-Plugin-PPI',
+    },
+  },
 );
 
 $build->create_build_script;
