@@ -11,11 +11,9 @@ my $build = Module::Build->new(
   dist_author        => 'Joel Berger <joel.a.berger@gmail.com>',
   license            => 'perl',
   configure_requires => { 'Module::Build' => 0.36 },
-  share_dir => 'lib/Mojolicious/Plugin/PPI/public',
   requires => {
     'Mojolicious' => '2.0',
     'PPI::HTML'   => 0,
-    'File::ShareDir' => 0,
   },
 );
 

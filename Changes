@@ -1,6 +1,6 @@
 Revision history for Perl extension Mojolicious::Plugin::PPI.
 
-0.04  Oct 21, 2013
+0.04  Oct 22, 2013
   - Major revisions including lots of api change
   - Remove external static files
   - Line numbers on/off via double-click rather than toggle

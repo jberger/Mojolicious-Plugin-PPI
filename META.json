@@ -21,7 +21,6 @@
       },
       "runtime" : {
          "requires" : {
-            "File::ShareDir" : "1.00",
             "Mojolicious" : "2.0",
             "PPI::HTML" : "0"
          }
