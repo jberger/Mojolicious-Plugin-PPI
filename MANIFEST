@@ -3,11 +3,12 @@ Changes
 examples/quine.pl
 lib/Mojolicious/Plugin/PPI.pm
 MANIFEST			This list of files
+META.json
+META.yml
 README.pod
 t/basic.t
 t/block.t
 t/css.t
 t/src_folder.t
 t/test.pl
-META.yml
-META.json
+t/unknown.t
