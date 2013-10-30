@@ -7,11 +7,10 @@ use Mojo::ByteStream 'b';
 
 use File::Basename ();
 use File::Spec;
-use File::ShareDir ();
 
 use PPI::HTML;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 $VERSION = eval $VERSION;
 
 has 'line_numbers'  => 1;

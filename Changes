@@ -1,5 +1,9 @@
 Revision history for Perl module Mojolicious::Plugin::PPI
 
+0.05 2013-10-29
+  - Update Changes for CPAN::Meta::Spec (sergeyromanov++)
+  - Fix broken import
+
 0.04 2013-10-22
   - Major revisions including lots of api change
   - Remove external static files

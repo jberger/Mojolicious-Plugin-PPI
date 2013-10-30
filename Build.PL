@@ -18,6 +18,7 @@ my $build = Module::Build->new(
   meta_merge => {
     resources => {
       repository => 'https://github.com/jberger/Mojolicious-Plugin-PPI',
+      bugtracker => 'https://github.com/jberger/Mojolicious-Plugin-PPI/issues',
     },
   },
 );

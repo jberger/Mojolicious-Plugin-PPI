@@ -15,10 +15,12 @@ name: Mojolicious-Plugin-PPI
 provides:
   Mojolicious::Plugin::PPI:
     file: lib/Mojolicious/Plugin/PPI.pm
-    version: 0.04
+    version: 0.05
 requires:
   Mojolicious: 2.0
   PPI::HTML: 0
 resources:
+  bugtracker: https://github.com/jberger/Mojolicious-Plugin-PPI/issues
   license: http://dev.perl.org/licenses/
-version: 0.04
+  repository: https://github.com/jberger/Mojolicious-Plugin-PPI
+version: 0.05
