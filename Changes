@@ -1,5 +1,8 @@
 Revision history for Perl module Mojolicious::Plugin::PPI
 
+0.06 2014-05-31
+  - Improve compatibility with Mojolicious 5.00 (no bump required)
+
 0.05 2013-10-29
   - Update Changes for CPAN::Meta::Spec (sergeyromanov++)
   - Fix broken import

@@ -10,7 +10,7 @@ use File::Spec;
 
 use PPI::HTML;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 $VERSION = eval $VERSION;
 
 has 'line_numbers'  => 1;
@@ -113,12 +113,12 @@ sub convert {
   }
 
   my %render_opts = (
-    partial    => 1,
     'ppi.code' => $converter->html( $opts{file} ? $opts{file} : \$opts{string} ),
     'ppi.tag'  => \@tag,
   );
 
-  return $c->render('ppi_template', %render_opts);
+  #TODO use render_to_string once Mojo 5.00 is required
+  return $c->include('ppi_template', %render_opts);
 }
 
 sub generate_id {

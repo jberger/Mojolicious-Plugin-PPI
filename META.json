@@ -4,7 +4,7 @@
       "Joel Berger <joel.a.berger@gmail.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4205",
    "license" : [
       "perl_5"
    ],
@@ -29,7 +29,7 @@
    "provides" : {
       "Mojolicious::Plugin::PPI" : {
          "file" : "lib/Mojolicious/Plugin/PPI.pm",
-         "version" : "0.05"
+         "version" : "0.06"
       }
    },
    "release_status" : "stable",
@@ -44,5 +44,5 @@
          "url" : "https://github.com/jberger/Mojolicious-Plugin-PPI"
       }
    },
-   "version" : "0.05"
+   "version" : "0.06"
 }
