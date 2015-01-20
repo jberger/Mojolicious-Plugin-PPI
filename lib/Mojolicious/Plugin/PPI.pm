@@ -276,7 +276,7 @@ C<< no_check_file => [0/1] >> specifies if a file check should be performed. Def
 
 =item *
 
-C<< src_folder => 'directory' >> specifies a folder where input files will be found. When specified, if the directory is not found, a warning is issued, but not fatally. This functionality is not (currently) available for per-file alteration, so only use if all files will be in this folder (or subfolder). Remeber, if this option is not specified, a full or relative path may be passed to L</ppi>.
+C<< src_folder => 'directory' >> specifies a folder where input files will be found. When specified, if the directory is not found, a warning is issued, but not fatally. This functionality is not (currently) available for per-file alteration, so only use if all files will be in this folder (or subfolder). Remember, if this option is not specified, a full or relative path may be passed to L</ppi>.
 
 =item *
 
