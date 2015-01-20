@@ -272,7 +272,7 @@ C<< line_numbers => [0/1] >> specifies if line numbers should be generated. Defa
 
 =item *
 
-C<< no_check_file => [0/1] >> specifies if a file check should be performed. Default C<1>.
+C<< no_check_file => [0/1] >> specifies if a file check should be performed. Default C<0>.
 
 =item *
 
