@@ -10,7 +10,7 @@ use File::Spec;
 
 use PPI::HTML;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 $VERSION = eval $VERSION;
 
 has 'line_numbers'  => 1;
